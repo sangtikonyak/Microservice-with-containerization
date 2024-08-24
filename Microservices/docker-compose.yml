@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  authservice:
+    image: ${DOCKER_REGISTRY-}authservice
+    build:
+      context: .
+      dockerfile: AuthService/Dockerfile
+    ports:
+      - "8080:80"  # Map port 80 inside the container to port 8080 on the host
+      - "8443:443" # Map port 443 inside the container to port 8443 on the host (if you need HTTPS)
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/app/certificates/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=symbios  # Replace with your actual certificate password
+    volumes:
+      - C:/Users/Symbios/.aspnet/https:/app/certificates:ro
+    networks:
+      - app-network
+
+  productservice:
+    image: ${DOCKER_REGISTRY-}productservice
+    build:
+      context: .
+      dockerfile: ProductService/Dockerfile
+    ports:
+      - "8081:80"  # Map port 80 inside the container to port 8080 on the host
+      - "8444:443" # Map port 443 inside the container to port 8443 on the host (if you need HTTPS)
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/app/certificates/aspnetapp.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=symbios  # Replace with your actual certificate password
+    volumes:
+      - C:/Users/Symbios/.aspnet/https:/app/certificates:ro
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
